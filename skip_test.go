@@ -93,7 +93,7 @@ func TestSkiplist_String(t *testing.T) {
 	ta.Equal("H:= > E:aa=bb > T:=", got)
 }
 
-func TestSkiplist_Add_searchElt(t *testing.T) {
+func TestSkiplist_Add_searchElt_Remove_Get(t *testing.T) {
 
 	ta := require.New(t)
 
@@ -104,9 +104,27 @@ func TestSkiplist_Add_searchElt(t *testing.T) {
 	s.Add("b", "")
 	ta.Equal("H:= > E:a= > E:b= > T:=", s.String())
 
-	s.Add("c", "")
+	got := s.Add("c", "")
+	ta.False(got)
 	ta.Equal("H:= > E:a= > E:b= > E:c= > T:=", s.String())
 
-	s.Add("b", "newB")
+	got = s.Add("b", "newB")
+	ta.True(got)
 	ta.Equal("H:= > E:a= > E:b=newB > E:c= > T:=", s.String())
+
+	got = s.Remove("a")
+	ta.True(got)
+	ta.Equal("H:= > E:b=newB > E:c= > T:=", s.String())
+
+	got = s.Remove("a")
+	ta.False(got)
+	ta.Equal("H:= > E:b=newB > E:c= > T:=", s.String())
+
+	v, found := s.Get("a")
+	ta.Equal("", v)
+	ta.False(found)
+
+	v, found = s.Get("b")
+	ta.Equal("newB", v)
+	ta.True(found)
 }

@@ -81,7 +81,6 @@ func (e *Elt) String() string {
 }
 
 func (s *Skiplist) String() string {
-	// TODO test
 
 	res := []string{}
 	cur := &s.head
@@ -106,13 +105,7 @@ func (s *Skiplist) Add(k, v string) bool {
 	ps, equal := s.searchElt(e)
 
 	if equal {
-		// remove dup elt
-		p := ps[0].pointers[0]
-		for i := 0; i < len(ps); i++ {
-			if ps[i].pointers[i] == p {
-				ps[i].pointers[i] = p.pointers[i]
-			}
-		}
+		s.removeElt(ps)
 	}
 
 	for i := 0; i < len(e.pointers); i++ {
@@ -121,6 +114,40 @@ func (s *Skiplist) Add(k, v string) bool {
 	}
 
 	return equal
+}
+
+// Remove a new k from skiplist, returns true if removed.
+func (s *Skiplist) Remove(k string) bool {
+
+	e := NewElt(0, k, "")
+
+	ps, equal := s.searchElt(e)
+
+	if equal {
+		s.removeElt(ps)
+	}
+
+	return equal
+}
+
+func (s *Skiplist) Get(k string) (string, bool) {
+
+	e := NewElt(0, k, "")
+	ps, equal := s.searchElt(e)
+
+	if equal {
+		return ps[0].pointers[0].Value(), true
+	}
+	return "", false
+}
+
+func (s *Skiplist) removeElt(ps []*Elt) {
+	p := ps[0].pointers[0]
+	for i := 0; i < len(ps); i++ {
+		if ps[i].pointers[i] == p {
+			ps[i].pointers[i] = p.pointers[i]
+		}
+	}
 }
 
 // Search for k and returns a slice of *Elt
