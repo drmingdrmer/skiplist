@@ -1,9 +1,11 @@
 package skiplist
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 
+	"github.com/openacid/low/mathext/zipf"
 	"github.com/stretchr/testify/require"
 )
 
@@ -168,4 +170,30 @@ v v v ei=ei
 | | v kh=kh
 | | v kj=kj`
 	ta.Equal(want[1:], s.DebugStr())
+}
+
+var BenchOutput bool
+
+func BenchmarkSkipList(b *testing.B) {
+
+	alen := 1024 * 1024
+	keys := make([]string, 0, alen)
+	for i := 0; i < alen; i++ {
+		keys = append(keys, fmt.Sprintf("%04x", i))
+	}
+	fmt.Println(keys[:20])
+
+	load := zipf.Accesses(1, 1.5, alen, b.N, nil)
+	s := New()
+
+	b.ResetTimer()
+
+	ss := false
+	for i := 0; i < b.N; i++ {
+		idx := load[i]
+		ok := s.Add(keys[idx], "")
+		ss = ss || ok
+	}
+
+	BenchOutput = ss
 }

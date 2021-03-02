@@ -17,6 +17,7 @@ var (
 type Node struct {
 	nexts []*Node
 
+	b uint32
 	// there are 2 seg in  k:
 	// the first byte is node type: head: 00, tail: 02, other node: 01
 	// so that head always less than other node and other nodes are always less
@@ -39,12 +40,29 @@ func New() *SkipList {
 	return s
 }
 
+// func strToU32(k string) uint32 {
+//     l := len(k)
+//     switch l {
+//     case 0:
+//         return 0
+//     case 1:
+//         return uint32(k[0]) << 24
+//     case 2:
+//         return uint32(k[0])<<24 | uint32(k[1])<<16
+//     case 3:
+//         return uint32(k[0])<<24 | uint32(k[1])<<16 | uint32(k[2])<<8
+//     default:
+//         return uint32(k[0])<<24 | uint32(k[1])<<16 | uint32(k[2])<<8 | uint32(k[3])
+//     }
+// }
+
 func NewNode(lvl int, k string, v interface{}) *Node {
 
 	e := &Node{
 		nexts: make([]*Node, lvl+1),
-		k:     make([]byte, 1+len(k)),
-		v:     v,
+		// b:     strToU32(k),
+		k: make([]byte, 1+len(k)),
+		v: v,
 	}
 	// \x01 indicates it is a payload node.
 	e.k[0] = 1
@@ -65,6 +83,12 @@ func (e *Node) Value() interface{} {
 // e.Less(o) implies !o.Less(e)
 // !e.Less(o) && ! o.Less(e) implies e == o
 func (e *Node) Less(o *Node) bool {
+	// if e.k[0] != o.k[0] {
+	//     return e.k[0] < o.k[0]
+	// }
+
+	// return e.b < o.b || (e.b == o.b &&
+	//     bytes.Compare(e.k, o.k) < 0)
 	return bytes.Compare(e.k, o.k) < 0
 }
 
